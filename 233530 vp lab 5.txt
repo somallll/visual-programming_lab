@@ -1,0 +1,190 @@
+using System;
+using System.Collections.Generic;
+
+// Base class: Customer
+public class Customer
+{
+    public int CustomerId { get; set; }
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
+    public string Street { get; set; }
+    public string City { get; set; }
+    public string Zipcode { get; set; }
+    public string Phone { get; set; }
+    public string Email { get; set; }
+    public string Password { get; set; }
+
+    public Customer(int customerId, string firstName, string lastName, string street, string city, string zipcode, string phone, string email, string password)
+    {
+        CustomerId = customerId;
+        FirstName = firstName;
+        LastName = lastName;
+        Street = street;
+        City = city;
+        Zipcode = zipcode;
+        Phone = phone;
+        Email = email;
+        Password = password;
+    }
+
+    public virtual void DisplayCustomerInfo()
+    {
+        Console.WriteLine($"Customer: {FirstName} {LastName}, Email: {Email}, City: {City}");
+    }
+}
+
+// Derived class: RetailCustomer
+public class RetailCustomer : Customer
+{
+    public string CreditCardNumber { get; set; }
+    public string CreditCardType { get; set; }
+
+    public RetailCustomer(int customerId, string firstName, string lastName, string street, string city, string zipcode, string phone, string email, string password, string creditCardNumber, string creditCardType)
+        : base(customerId, firstName, lastName, street, city, zipcode, phone, email, password)
+    {
+        CreditCardNumber = creditCardNumber;
+        CreditCardType = creditCardType;
+    }
+
+    public override void DisplayCustomerInfo()
+    {
+        base.DisplayCustomerInfo();
+        Console.WriteLine($"Credit Card: {CreditCardType} {CreditCardNumber}");
+    }
+}
+
+// Derived class: CorporateCustomer
+public class CorporateCustomer : Customer
+{
+    public string CompanyName { get; set; }
+    public int FrequentFlyerPoints { get; set; }
+    public string BillingAccountNumber { get; set; }
+
+    public CorporateCustomer(int customerId, string firstName, string lastName, string street, string city, string zipcode, string phone, string email, string password, string companyName, int frequentFlyerPoints, string billingAccountNumber)
+        : base(customerId, firstName, lastName, street, city, zipcode, phone, email, password)
+    {
+        CompanyName = companyName;
+        FrequentFlyerPoints = frequentFlyerPoints;
+        BillingAccountNumber = billingAccountNumber;
+    }
+
+    public override void DisplayCustomerInfo()
+    {
+        base.DisplayCustomerInfo();
+        Console.WriteLine($"Company: {CompanyName}, Frequent Flyer Points: {FrequentFlyerPoints}");
+    }
+}
+
+// Flight Class
+public class Flight
+{
+    public int FlightId { get; set; }
+    public DateTime Date { get; set; }
+    public string Origin { get; set; }
+    public string Destination { get; set; }
+    public DateTime DepartureTime { get; set; }
+    public DateTime ArrivalTime { get; set; }
+    public int SeatingCapacity { get; set; }
+    public List<Seat> Seats { get; set; }
+
+    public Flight(int flightId, DateTime date, string origin, string destination, DateTime departureTime, DateTime arrivalTime, int seatingCapacity)
+    {
+        FlightId = flightId;
+        Date = date;
+        Origin = origin;
+        Destination = destination;
+        DepartureTime = departureTime;
+        ArrivalTime = arrivalTime;
+        SeatingCapacity = seatingCapacity;
+        Seats = new List<Seat>();
+    }
+
+    public void DisplayFlightInfo()
+    {
+        Console.WriteLine($"Flight: {FlightId}, From: {Origin} To: {Destination}, Departure: {DepartureTime}, Arrival: {ArrivalTime}");
+    }
+}
+
+// Seat Class
+public class Seat
+{
+    public int RowNumber { get; set; }
+    public int SeatNumber { get; set; }
+    public decimal Price { get; set; }
+    public string Status { get; set; } // Reserved, Available, etc.
+
+    public Seat(int rowNumber, int seatNumber, decimal price, string status)
+    {
+        RowNumber = rowNumber;
+        SeatNumber = seatNumber;
+        Price = price;
+        Status = status;
+    }
+
+    public void DisplaySeatInfo()
+    {
+        Console.WriteLine($"Seat: Row {RowNumber}, Seat {SeatNumber}, Price: {Price}, Status: {Status}");
+    }
+}
+
+// Reservation Class
+public class Reservation
+{
+    public int ReservationNumber { get; set; }
+    public DateTime ReservationDate { get; set; }
+    public Customer ReservedBy { get; set; }
+    public Flight Flight { get; set; }
+    public List<Seat> ReservedSeats { get; set; }
+
+    public Reservation(int reservationNumber, DateTime reservationDate, Customer reservedBy, Flight flight)
+    {
+        ReservationNumber = reservationNumber;
+        ReservationDate = reservationDate;
+        ReservedBy = reservedBy;
+        Flight = flight;
+        ReservedSeats = new List<Seat>();
+    }
+
+    public void AddSeat(Seat seat)
+    {
+        ReservedSeats.Add(seat);
+        seat.Status = "Reserved";
+    }
+
+    public void DisplayReservationInfo()
+    {
+        Console.WriteLine($"Reservation {ReservationNumber}, Date: {ReservationDate}, Reserved by: {ReservedBy.FirstName} {ReservedBy.LastName}");
+        Flight.DisplayFlightInfo();
+        foreach (var seat in ReservedSeats)
+        {
+            seat.DisplaySeatInfo();
+        }
+    }
+}
+
+// Test the system
+public class Program
+{
+    public static void Main(string[] args)
+    {
+        // Create a retail customer
+        RetailCustomer retailCustomer = new RetailCustomer(1, "John", "Doe", "123 Main St", "Springfield", "12345", "555-1234", "john@example.com", "password123", "4111111111111111", "Visa");
+
+        // Create a corporate customer
+        CorporateCustomer corporateCustomer = new CorporateCustomer(2, "Jane", "Smith", "456 Elm St", "Metropolis", "67890", "555-5678", "jane@corporate.com", "password456", "TechCorp", 15000, "CORP123");
+
+        // Create a flight
+        Flight flight = new Flight(101, DateTime.Now.AddDays(1), "New York", "Los Angeles", DateTime.Now.AddHours(2), DateTime.Now.AddHours(6), 150);
+
+        // Add some seats to the flight
+        flight.Seats.Add(new Seat(1, 1, 300.00m, "Available"));
+        flight.Seats.Add(new Seat(1, 2, 300.00m, "Available"));
+
+        // Make a reservation for the retail customer
+        Reservation reservation = new Reservation(1001, DateTime.Now, retailCustomer, flight);
+        reservation.AddSeat(flight.Seats[0]);
+
+        // Display reservation details
+        reservation.DisplayReservationInfo();
+    }
+}
